@@ -40,6 +40,31 @@
             font-size: 18px;
             margin-top: 5px;
         }
+
+        /* ---------------------------------- */
+        /* 1.1 右上角清除暫存按鈕樣式 */
+        /* ---------------------------------- */
+        #clear-cache-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #333;
+            border: 1px solid #777;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 100;
+            transition: all 0.3s;
+            backdrop-filter: blur(2px); /* 磨砂玻璃效果 */
+        }
+
+        #clear-cache-btn:hover {
+            background-color: #f44336;
+            color: white;
+            border-color: #d32f2f;
+        }
         
         /* 桌面版網格設置 */
         .button-grid {
@@ -175,6 +200,14 @@
             .btn-text {
                 font-size: 14px;
             }
+
+            /* 手機版清除按鈕位置微調 */
+            #clear-cache-btn {
+                top: 10px;
+                right: 10px;
+                font-size: 10px;
+                padding: 5px 8px;
+            }
         }
         
         /* ---------------------------------- */
@@ -203,7 +236,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         
-        /* 新增按鈕表單佈局優化 */
         .new-btn-form {
             display: grid;
             grid-template-columns: 1fr 1fr; 
@@ -211,7 +243,6 @@
             align-items: end;
         }
         
-        /* 儲存返回按鈕 */
         #save-and-return-btn {
             grid-column: 1 / 3; 
             padding: 12px 10px;
@@ -224,7 +255,6 @@
             font-weight: bold;
         }
         
-        /* 新增按鈕 (submit) - 桌面版佔滿兩欄 */
         .new-btn-form button[type="submit"] {
             grid-column: 1 / 3; 
             padding: 12px 10px;
@@ -250,9 +280,6 @@
             border: 1px solid #ccc;
         }
 
-        /* ---------------------------------- */
-        /* 7. 設定列表樣式 */
-        /* ---------------------------------- */
         .setting-item {
             display: flex;
             align-items: center;
@@ -274,10 +301,6 @@
             min-width: 100px; 
         }
 
-        .setting-item input:nth-child(1), .setting-item input:nth-child(2) {
-            max-width: 150px;
-        }
-
         .setting-item .delete-btn {
             background-color: #f44336;
             color: white;
@@ -287,73 +310,42 @@
             cursor: pointer;
         }
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            line-height: 1; 
-        }
-
-        .close:hover, .close:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        /* ---------------------------------- */
-        /* 8. 手機模式優化 (MEDIA QUERY - 設定頁面) */
-        /* ---------------------------------- */
         @media (max-width: 768px) {
-            
             .modal-content {
                 margin: 0;
                 width: 100%;
                 min-height: 100vh;
                 border-radius: 0;
             }
-            
-            .setting-item input[type="text"] {
-                flex-grow: 1;
-                margin-right: 0;
-                margin-bottom: 5px;
-                max-width: none;
-            }
-            
-            .setting-item input:nth-child(1), .setting-item input:nth-child(2) {
-                max-width: none; 
-            }
-
-            /* 【修正 1】刪除按鈕寬度縮小 20% 並置中 */
             .setting-item .delete-btn {
-                width: 80%; /* 縮小 20% */
-                margin: 5px auto 0 auto; /* 置中 */
-                display: block; /* 讓 margin auto 生效 */
+                width: 80%;
+                margin: 5px auto 0 auto;
+                display: block;
             }
-
-            /* 【修正 2】新增按鈕寬度縮小 20% 並置中 */
             .new-btn-form button[type="submit"] {
-                width: 80%; /* 縮小 20% */
-                margin: 0 auto; /* 置中 */
+                width: 80%;
+                margin: 0 auto;
             }
         }
     </style>
 </head>
 <body>
 
+    <button id="clear-cache-btn" onclick="clearDataAndReload()">
+        <i class="fas fa-trash-alt"></i> 清除暫存並更新
+    </button>
+
     <div class="header-container">
         <h1>🏢 裁斷應用程式索引 2.0</h1>
         <div class="subheader">CUTTING Application Index 2.0</div>
     </div>
 
-    <div class="button-grid" id="button-grid">
-    </div>
+    <div class="button-grid" id="button-grid"></div>
     
     <button id="settings-btn" onclick="authenticateAndOpenModal()">
         <i class="fas fa-cog"></i>
     </button>
     
-
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <h2>新增專案網址</h2> 
@@ -369,7 +361,7 @@
                 </div>
                 <div style="grid-column: 1 / 3;">
                     <label for="new-url">網址連結</label>
-                    <input type="text" id="new-url" placeholder="https://dereklin1429.github.io/..." required>
+                    <input type="text" id="new-url" placeholder="https://..." required>
                 </div>
                 <button type="submit">新增</button>
             </form>
@@ -377,25 +369,19 @@
             <hr>
 
             <h3>管理現有按鈕</h3>
-            <div id="settings-list">
-            </div>
+            <div id="settings-list"></div>
             
             <p style="margin-top: 15px; color: #666; font-size: 12px;">提示：直接在列表中修改名稱或網址會自動儲存。</p>
             
             <button id="save-and-return-btn" onclick="savePasswordAndClose()">
                 <i class="fas fa-save"></i> 儲存並返回 (自動記錄密碼)
             </button>
-            
         </div>
     </div>
 
-
     <script>
-        // 預設密碼 (如果 Local Storage 沒有儲存密碼，則使用此預設值)
         const DEFAULT_PASSWORD = "1429"; 
         
-        // 預設按鈕資料：包含英文名稱 (en) 和中文名稱 (cn)
-        // 【已修正】只保留指定的 5 個網址
         const defaultButtons = [
             { en: "Machine-NG CT", cn: "機械故障資訊", url: "https://dereklin1429.github.io/Machine-NG-CT/", icon: "fa-arrow-right" },
             { en: "5S Audit CT", cn: "裁斷 5S 查核", url: "https://dereklin1429.github.io/5S-audit-CT/", icon: "fa-arrow-circle-right" },
@@ -403,37 +389,36 @@
             { en: "MC Maintenance CT", cn: "設備保養查核", url: "https://dereklin1429.github.io/Maintenance-CT/", icon: "fa-angle-double-right" },
             { en: "CUTTING Inventory", cn: "裁斷庫存盤點", url: "https://dereklin1429.github.io/derekctInventory03/", icon: "fa-location-arrow" },
             { en: "WET TEST", cn: "WET試車紀錄", url: "https://dereklin1429.github.io/MCWETTEST01/", icon: "fa-list-check" },
-             { en: "SCRAP DATA", cn: "材料報廢紀錄", url: "https://dereklin1429.github.io/Monthly-Scrap-Data-Statistics-V3.0/", icon: "fa-book" },
-             { en: "SPC RM Info", cn: "材料規格資訊", url: "https://dereklin1429.github.io/Spec-and-raw-material-searcher/", icon: "fa-book" }           
+            { en: "SCRAP DATA", cn: "材料報廢紀錄", url: "https://dereklin1429.github.io/Monthly-Scrap-Data-Statistics-V3.0/", icon: "fa-book" },
+            { en: "SPC RM Info", cn: "材料規格資訊", url: "https://dereklin1429.github.io/Spec-and-raw-material-searcher/", icon: "fa-book" }           
         ];
 
         let appButtons = [];
-        // Local Storage Keys
         const STORAGE_KEY = 'departmentalAppButtonsV2';
-        const STORED_PASSWORD_KEY = 'settingsStoredPassword'; // 用於儲存自動登入密碼
+        const STORED_PASSWORD_KEY = 'settingsStoredPassword';
 
         const buttonGrid = document.getElementById('button-grid');
         const newBtnForm = document.getElementById('new-btn-form');
         const settingsModal = document.getElementById('settingsModal');
 
-        // 1. 初始化和讀取資料
+        // 1. 初始化
         function loadButtons() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 appButtons = JSON.parse(saved);
             } else {
-                appButtons = defaultButtons;
+                appButtons = [...defaultButtons];
                 saveButtons();
             }
             renderMainButtons();
         }
 
-        // 2. 儲存資料到 Local Storage
+        // 2. 儲存
         function saveButtons() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appButtons));
         }
 
-        // 3. 渲染主頁按鈕
+        // 3. 渲染主頁
         function renderMainButtons() {
             buttonGrid.innerHTML = ''; 
             appButtons.forEach(btn => {
@@ -441,27 +426,29 @@
                 if (btn.cn && btn.cn.trim() !== '') {
                     nameToDisplay += `<br>(${btn.cn.trim()})`;
                 }
-                
                 const link = document.createElement('a');
                 link.className = 'btn-style'; 
                 link.href = btn.url;
                 link.target = '_blank';
-                link.innerHTML = `
-                    <i class="fas ${btn.icon} btn-icon"></i>
-                    <span class="btn-text">${nameToDisplay}</span>
-                `;
+                link.innerHTML = `<i class="fas ${btn.icon} btn-icon"></i><span class="btn-text">${nameToDisplay}</span>`;
                 buttonGrid.appendChild(link);
             });
         }
-        
-        // 4. 渲染設定列表中的項目
+
+        // 新增功能：清除資料並重新整理
+        function clearDataAndReload() {
+            if (confirm("確定要清除所有自訂按鈕暫存並還原為預設設定嗎？\n(此動作無法復原)")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload(); 
+            }
+        }
+
         function renderSettingsList() {
             const settingsList = document.getElementById('settings-list');
             settingsList.innerHTML = '';
             appButtons.forEach((btn, index) => {
                 const item = document.createElement('div');
                 item.className = 'setting-item';
-
                 item.innerHTML = `
                     <input type="text" value="${btn.en}" onchange="updateButton(${index}, 'en', this.value)" placeholder="英文名稱">
                     <input type="text" value="${btn.cn || ''}" onchange="updateButton(${index}, 'cn', this.value)" placeholder="中文名稱">
@@ -472,136 +459,67 @@
             });
         }
 
-        // 5. 新增按鈕
         newBtnForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const enName = document.getElementById('new-en-name').value.trim();
             const cnName = document.getElementById('new-cn-name').value.trim();
             const url = document.getElementById('new-url').value.trim();
-            
-            if (!enName || !url) {
-                alert('英文名稱和網址連結為必填項。');
-                return;
-            }
-            
-            const randomIcons = ["fa-long-arrow-alt-right", "fa-arrow-right", "fa-angle-right", "fa-chevron-right", "fa-play", "fa-bullseye", "fa-rocket"];
+            const randomIcons = ["fa-long-arrow-alt-right", "fa-arrow-right", "fa-play", "fa-rocket"];
             const icon = randomIcons[Math.floor(Math.random() * randomIcons.length)];
-
-            const newBtn = { en: enName, cn: cnName, url: url, icon };
-            
-            appButtons.push(newBtn);
+            appButtons.push({ en: enName, cn: cnName, url: url, icon });
             saveButtons();
             renderMainButtons();
             renderSettingsList();
-            
-            // 清空表單
             newBtnForm.reset();
         });
 
-        // 6. 刪除按鈕
         function deleteButton(index) {
-            const name = appButtons[index].en + (appButtons[index].cn ? `(${appButtons[index].cn})` : '');
-            if (confirm(`確定要刪除按鈕 "${name}" 嗎？`)) {
+            if (confirm(`確定要刪除嗎？`)) {
                 appButtons.splice(index, 1);
                 saveButtons();
                 renderMainButtons();
                 renderSettingsList();
             }
         }
-        
-        // 7. 更新按鈕名稱或網址
+
         function updateButton(index, field, value) {
-            value = value.trim();
-            if (field === 'en') {
-                appButtons[index].en = value;
-            } else if (field === 'cn') {
-                appButtons[index].cn = value;
-            } else if (field === 'url') {
-                appButtons[index].url = value;
-            }
+            appButtons[index][field] = value.trim();
             saveButtons();
             renderMainButtons();
         }
-        
-        // 8. Modal 彈窗控制 (加入密碼儲存和自動登入邏輯)
 
-        // 彈出 Modal 視窗
         function openModal() {
             renderSettingsList(); 
             settingsModal.style.display = "block";
-            // 確保手機模式下， Modal 內容滾動條在頂部
-            if (window.innerWidth <= 768) {
-                settingsModal.querySelector('.modal-content').scrollTop = 0;
-            }
+            if (window.innerWidth <= 768) settingsModal.querySelector('.modal-content').scrollTop = 0;
         }
 
-        function closeModal() {
-            settingsModal.style.display = "none";
-        }
-        
-        // 儲存密碼並關閉 Modal
+        function closeModal() { settingsModal.style.display = "none"; }
+
         function savePasswordAndClose() {
-            // 確保所有設定變更已儲存
             saveButtons(); 
-            
-            if (confirm("是否要將本次使用的密碼儲存於此瀏覽器？儲存後下次將自動進入設定頁面。")) {
-                // 儲存密碼標記
+            if (confirm("是否要儲存密碼於此瀏覽器以自動登入？")) {
                 localStorage.setItem(STORED_PASSWORD_KEY, DEFAULT_PASSWORD); 
-                alert("密碼已儲存。下次訪問將自動登入。");
             } else {
-                // 清除密碼標記
                 localStorage.removeItem(STORED_PASSWORD_KEY);
-                alert("密碼未儲存。下次仍需手動輸入。");
             }
-            
             closeModal();
         }
 
-        
-        // 處理密碼認證邏輯
         function authenticateAndOpenModal() {
-            const storedPassword = localStorage.getItem(STORED_PASSWORD_KEY);
-            
-            if (storedPassword === DEFAULT_PASSWORD) {
-                // 1. 自動登入
+            if (localStorage.getItem(STORED_PASSWORD_KEY) === DEFAULT_PASSWORD) {
                 openModal();
-                return;
-            }
-
-            // 2. 手動認證
-            const password = prompt("請輸入管理密碼進入設定頁面：");
-            
-            if (password === DEFAULT_PASSWORD) {
-                // 密碼正確
-                openModal();
-            } else if (password !== null) {
-                // 輸入錯誤
-                alert("密碼錯誤，無法進入設定頁面。");
+            } else {
+                const password = prompt("請輸入管理密碼：");
+                if (password === DEFAULT_PASSWORD) openModal();
+                else if (password !== null) alert("密碼錯誤！");
             }
         }
 
-        // 點擊 Modal 外部關閉
-        window.onclick = function(event) {
-            if (event.target == settingsModal) {
-                closeModal();
-            }
-        }
+        window.onclick = function(event) { if (event.target == settingsModal) closeModal(); }
 
-        // 初始載入按鈕
         loadButtons();
-
     </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
